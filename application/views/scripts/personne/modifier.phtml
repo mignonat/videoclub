@@ -1,0 +1,48 @@
+<?php
+    $form = $this->form ;
+    $this->layout()->breadcrumb = 
+            "<a href='".$this->url(
+                                array('controller' => 'Personne',
+                                      'action'     => 'ajouter'), "", true)."'>Ajouter des personnes</a> | "
+            ."<a href='".$this->url(
+                                array('controller' => 'Personne',
+                                      'action'     => 'index'), "", true)."'>Liste des personnes</a> > "
+            ."<a href='".$this->url(
+                                array('controller' => 'Personne',
+                                      'action' => 'consulter', 
+                                      "idPersonne" => $form->getElement("id")->getValue()), "", true)."'>Fiche informations personne</a> > "
+            ."<label>Modifier la personne</label>" ;
+    
+    $this->layout()->titre = "Modifier les informations d'une personne" ;
+    $form->setAction($this->url());
+?>
+
+<div class="wrapperMini">
+    
+    <div class="titre">
+        <?php echo htmlentities($this->personne->getIdentite()) ?>
+    </div>
+    
+    <br/>
+    
+    <form method="<?php echo $form->getMethod() ?>" action="<?php echo $form->getAction()?>">
+        <?php
+        //Affichage du formulaire de saisie
+        echo $form->getElement("id") ;
+        echo $form->getElement("nom") ;
+        echo $form->getElement("prenom") ;
+        echo $form->getElement("password1") ;
+        echo $form->getElement("password2") ;
+        echo $form->getElement("courriel") ;
+        echo $form->getElement("adresse1") ;
+        echo $form->getElement("adresse2") ;
+        echo $form->getElement("codePostal") ;
+        echo $form->getElement("ville") ;
+        echo $form->getElement("estActif") ;
+        echo $form->getElement("estEmploye") ;
+        echo $form->getElement("csrf") ;
+        echo $form->getElement("submit") ;
+        ?>
+    </form>
+    
+</div>

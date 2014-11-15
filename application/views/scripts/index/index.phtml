@@ -1,0 +1,127 @@
+<?php $this->layout()->titre = "Vidéoclub 2000, le vidéoclub du futur !"; ?>
+
+<div class="wrapper">
+    <label class="breadStyleLabel">Top 10 - Films les plus populaires</label>
+</div>
+<div class="wrapper">
+    <table cellpadding="0" cellspacing="0" class="perso">
+        <thead>
+            <tr>
+                <th>Nom du film</th>
+                <th>Date Production</th>
+                <th>Nombre de demande</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <?php if (count($this->filmsLesPlusLoues) > 0): ?>
+            <?php foreach ($this->filmsLesPlusLoues as $film): ?>
+                <tr>
+                    <td>
+                        <a class='loupe' 
+                           title='Voir la fiche du film'
+                           href=' <?php echo $this->url(
+                                                    array("controller" => "Film",
+                                                          "action"     => "consulter",
+                                                          "idFilm"     => $film[0]["id"]), "", true); ?>'>
+                        </a>
+                        <label class='label'>
+                            <?php echo htmlentities($film[0]["nom"]); ?>
+                        </label>
+                    </td>
+                    <td>
+                        <?php echo $film[0]["dateFilm"]->format('d/m/Y'); ?>
+                    </td>
+                    <td>
+                        <?php echo $film["nbLoc"]; ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <tr>
+                <td colspan=3>Aucunes données en base</td>
+            </tr>   
+        <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
+<div class="separator"></div>
+
+<div class="wrapper">
+    <label class="breadStyleLabel">Derniers films ajoutés</label>
+</div>
+
+<div class="wrapper">
+    <?php if (count($this->nouveautes) > 0): ?>
+        <?php foreach ($this->nouveautes as $film): ?>
+            <a class='inblock' 
+                 title='Voir la fiche de <?php echo $film->getNom() ?>'
+                 href='<?php echo $this->url(
+                                    array("controller" => "Film", 
+                                          "action"     => "consulter", "idFilm" => $film->getId()), "", true) ?>'>
+
+                    <label class='titreDemiRond'>
+                        <?php echo htmlentities($film->getNom()) ?>
+                    </label>
+
+                    <div class='separatorFin'></div>
+
+                    Réalisateur : 
+                    <label class='gras'>
+                        <?php echo htmlentities($film->getRealisateur()) ?>
+                    </label>
+                    
+                    <br/>
+                    
+                    Acteur principal : 
+                    <label class='gras'>
+                        <?php echo htmlentities($film->getActeur1()) ?>
+                    </label>
+                    
+                    <br/>
+                    
+                    Ajouté : 
+                    <label class='gras'>
+                        <?php echo $film->getDateCreation()->format('l d F Y \à G\hm') ?>
+                    </label>
+              </a>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <a class='inblock'>
+            <label class='gras'>Aucun film n'a été loué pour le moment</label><br/>
+        </a>
+    <?php endif; ?>
+</div>
+
+<div class="separator"></div>
+
+<div class="wrapper">
+    <label class="breadStyleA" onclick="openMention()">Mentions légales</label>
+</div>
+
+<div id="mention" title="Mentions l&eacute;gales">
+    <p>Ici les mentions l&eacute;gales du site.</p>
+    <p>bla, bla, bla, bla, bla, bla, bla, bla, bla, bla, bla, bla, bla, bla</p>
+    <p>bla, bla, bla, bla, bla, bla, bla, bla, bla, bla, bla, bla, bla, bla</p> 
+    <p>bla, bla, bla, bla, bla, bla, bla, bla, bla, bla, bla, bla, bla, bla</p> 
+</div>
+
+<script type="text/javascript">
+    function openMention() {
+        $('#mention').dialog('open');
+    }
+
+    $(document).ready(function() {
+        $('#mention').dialog({
+            autoOpen: false,
+            modal: true,
+            minWidth: 450,
+            buttons: {
+                Ok: function() {
+                  $( this ).dialog( "close" );
+                }
+            }
+        });
+    });
+</script>

@@ -1,0 +1,33 @@
+<?php $this->layout()->titre = "Oups, une erreur est survenu !"; ?>
+
+<h2 class="red center"><?php echo $this->message ?></h2>
+
+<?php if (isset($this->exception)): ?>
+
+    <h3>Exception information:</h3>
+    
+    <p>
+        <b>Message:</b>
+        
+        <label class="blue">
+            <?php echo $this->exception->getMessage() ?>
+        </label>
+    </p>
+
+    <div style="word-wrap: break-word ">
+        
+        <h3>Stack trace:</h3>
+        
+        <pre>
+            <?php echo $this->exception->getTraceAsString() ?>
+        </pre>
+    </div>
+
+
+    <h3>Request Parameters:</h3>
+    
+    <pre>
+        <?php echo $this->escape(var_export($this->request->getParams(), true)) ?>
+    </pre>
+
+<?php endif ?>

@@ -1,0 +1,175 @@
+<?php
+    $this->layout()->breadcrumb = "<label>Ajouter des films</label> | "
+                                 ."<a href='" . $this->url(
+                                                        array('controller' => 'Film', 
+                                                              'action' => 'index')) . "'>Liste des films</a>" ;
+    $this->layout()->titre = "Ajouter des films dans l'application" ;
+    $form = $this->form ;
+    $form->setAction($this->url());
+?>
+<div class="wrapperMini">
+     <form method="<?php echo $form->getMethod() ?>" action="<?php echo $form->getAction()?>">
+         <div class="titre">
+            Veuillez saisir les informations du film :
+        </div>
+         
+        <?php echo $form->getElement("nom") ?>
+        <br/>
+        <?php echo $form->getElement("resume") ?>
+        <br/>
+        <?php echo $form->getElement("dateFilm") ?>
+        <br/>
+         
+        <label class="label">Casting</label>
+        
+        <table cellpadding="0" cellspacing="0" class="perso">
+            
+            <thead>
+                <th>Rôle</th>
+                <th>Personne</th>
+                <th></th>
+            </thead>
+            
+            <tbody>
+                
+                <tr>
+                    <td><label class='gras'>Réalisateur</label></td>
+                    <td>
+                        <label id="realisateur">
+                            <?php if ($form->getElement("realisateur_label")->getValue() != ''): ?>
+                                <?php echo htmlentities($form->getElement("realisateur_label")->getValue()) ?>
+                            <?php else: ?>
+                                -
+                            <?php endif; ?>
+                        </label>
+                        <?php echo $form->getElement("realisateur_id"); ?>
+                    </td>
+                    <td><button type="button" onclick="chooseActeursRealisateurs('realisateur')">changer</button></td>
+                </tr>
+                
+                <tr>
+                    <td><label class='gras'>Acteur principal</label></td>
+                    <td>
+                        <label id="acteur1">
+                            <?php if ($form->getElement("acteur1_label")->getValue() != ''): ?>
+                                <?php echo htmlentities($form->getElement("acteur1_label")->getValue()) ?>
+                            <?php else: ?>
+                                -
+                            <?php endif; ?>
+                        </label>
+                        <?php echo $form->getElement("acteur1_id"); ?>
+                    </td>
+                    <td><button type="button" onclick="chooseActeursRealisateurs('acteur1')">changer</button></td>
+                </tr>
+                
+                <tr>
+                    <td><label class='gras'>Autre acteur</label></td>
+                    <td>
+                        <label id="acteur2">
+                            <?php if ($form->getElement("acteur2_label")->getValue() != ''): ?>
+                                <?php echo htmlentities($form->getElement("acteur2_label")->getValue()) ?>
+                            <?php else: ?>
+                                -
+                            <?php endif; ?>
+                        </label>
+                        <?php echo $form->getElement("acteur2_id"); ?>
+                    </td>
+                    <td><button type="button" onclick="chooseActeursRealisateurs('acteur2')">changer</button></td>
+                </tr>
+                
+                <tr>
+                    <td><label class='gras'>Autre acteur</label></td>
+                    <td>
+                        <label id="acteur3">
+                            <?php if ($form->getElement("acteur3_label")->getValue() != ''): ?>
+                                <?php echo htmlentities($form->getElement("acteur3_label")->getValue()) ?>
+                            <?php else: ?>
+                                -
+                            <?php endif; ?>
+                        </label>
+                        <?php echo $form->getElement("acteur3_id"); ?>
+                    </td>
+                    <td><button type="button" onclick="chooseActeursRealisateurs('acteur3')">changer</button></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <?php
+        echo $form->getElement("submit") ;
+        echo $form->getElement("realisateur_label") ;
+        echo $form->getElement("acteur1_label") ;
+        echo $form->getElement("acteur2_label") ;
+        echo $form->getElement("acteur3_label") ;
+        echo $form->getElement("csrf") ;
+        ?>
+        
+    </form>
+</div>
+
+<div id="popupActeurRealisateur">
+    Sélectionner <label id='popupLabel'></label> : 
+    <select id='selectActeursRealisateurs'>
+        <?php foreach ($this->listeActeursRealisateurs as $personne): ?>
+            <option value='<?php echo $personne->getId() ?>'>
+                <?php echo htmlentities($personne) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+</div>
+
+<script type="text/javascript">
+    var acteurRealisateur = null;
+    var acteurRealisateurIDSelect = null;
+
+    function setActeursRealisateurs() {
+        //Recuperation de l'ID de l'acteurRealisateur selectionné
+        this.acteurRealisateurIDSelect = $("#selectActeursRealisateurs").val() ;
+        //on insere l'id dans le champs caché du formulaire
+        $("#"+this.acteurRealisateur+"_id").val(this.acteurRealisateurIDSelect) ;
+        //Champ hidden pour recupérer le label si erreur de validation du formulaire
+        $("#"+this.acteurRealisateur+"_label").val($("#selectActeursRealisateurs > option:selected").text()) ; 
+        $("#"+acteurRealisateur).html($("#selectActeursRealisateurs > option:selected").text()) ;
+    }
+
+    function chooseActeursRealisateurs(acteurRealisateur) {
+        this.acteurRealisateur = acteurRealisateur;
+        openPopupSelect(acteurRealisateur) ;
+    }
+
+    function openPopupSelect(acteurRealisateur) {
+        $('#popupLabel').html(acteurRealisateur) ;
+        $('#popupActeurRealisateur').dialog("open") ;
+    }
+
+    function initPopup() {
+        $("#popupActeurRealisateur").dialog({
+            resizable: true,
+            width: 470,
+            title: "Choisir une personne dans la liste",
+            autoOpen: false,
+            modal: true,
+            buttons: {
+                "OK": function() {
+                    setActeursRealisateurs() ;
+                    $(this).dialog("close");
+                },
+                "Annuler": function() {
+                    acteurRealisateur = null;
+                    acteurRealisateurIDSelect = null;
+                    $(this).dialog("close");
+                }
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        initPopup() ;
+        $(".date").datepicker({ 
+            dateFormat: 'dd/mm/yy', 
+            changeMonth: true,
+            changeYear: true,
+            minDate: "-70Y", 
+            maxDate: "0Y"
+        }) ;
+    }) ;
+</script>

@@ -1,0 +1,94 @@
+<?php 
+    $infosUser = new Zend_Session_Namespace('Zend_Auth');
+    $breadcrumb = "<label>Locations en cours</label> | "
+                 ."<a href='" . $this->url(
+                                        array('controller' => 'Location',
+                                              'action'     => 'historique')) . "'>Historique des locations</a>";
+    if (isset($infosUser->user)) {
+        if ($infosUser->role == "Employé") {
+            $breadcrumb = "<a href='".$this->url(
+                                            array('controller' => 'Location',
+                                                  'action'     => 'ajouter'), "", true)."'>Saisir une location</a> | "
+                         .$breadcrumb ;
+        }
+    }
+    
+    $this->layout()->breadcrumb = $breadcrumb ;
+    $this->layout()->titre = "Liste des locations en cours" ;
+?>
+
+<table cellpadding="0" cellspacing="0">
+    
+    <thead>
+        <?php if ($infosUser->role == 'Employé'): ?>
+        <th>Client</th>
+        <?php endif; ?>
+        <th>Film</th>
+        <th>Type</th>
+        <th>N° Media</th>
+        <th>Date emprunt</th>
+        <?php if ($infosUser->role == 'Employé'): ?>
+        <th>Terminer location</th>
+        <?php endif; ?>
+    </thead>
+    
+    <tbody>
+        
+        <?php if (count($this->locations)>0): ?>
+            <?php foreach ($this->locations as $location): ?>
+                <tr>
+                    <?php if ($infosUser->role == 'Employé'): ?>
+                        <td>
+                            <a class='loupe' 
+                               title='Consulter la fiche location'
+                               href='<?php echo $this->url(
+                                                array("controller" => "Location",
+                                                      "action"     => "consulter",
+                                                      "idLocation" => $location->getId()), "", true) ?>'>
+                            </a>
+                            <?php echo htmlentities($location->getPersonne()->getIdentite()) ?>
+                        </td>
+                    <?php endif; ?>
+                    <td>
+                        <a class='loupe' 
+                            title='Consulter la fiche du film'
+                            href='<?php echo $this->url(
+                                             array("controller" => "Film",
+                                                   "action"     => "consulter",
+                                                   "idFilm"     => $location->getMedia()->getFilm()->getId()), "", true) ?>'>
+                        </a>
+                        <?php echo htmlentities($location->getMedia()->getFilm()->getNom()) ?>
+                    </td>
+                    <td>
+                        <?php echo htmlentities($location->getMedia()->getType()) ?>
+                    </td>
+                    <td>
+                        <?php echo htmlentities($location->getMedia()->getNumero()) ?>
+                    </td>
+                    <td>
+                        <?php echo $location->getDateLocation()->format("d/m/y") ?>
+                    </td>
+                    <?php if ($infosUser->role == 'Employé'): ?>
+                        <td>
+                            <a class='NOK' 
+                               title='Cliquez pour terminer la location du média'
+                               href='<?php echo $this->url(
+                                                        array("controller" => "Location",
+                                                              "action"     => "retourner", 
+                                                              "idLocation" => $location->getId()), "",  true) ?>'>
+                       </td>
+                    <?php endif; ?>
+                  </tr>
+            <?php endforeach; ?>        
+        <?php endif; ?>
+    </tbody>
+</table>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("table").dataTable({
+            "bJQueryUI": true,
+            "sPaginationType": "two_button"
+        });
+    }) ;
+</script>

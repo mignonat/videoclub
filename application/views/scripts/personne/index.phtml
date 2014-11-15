@@ -1,0 +1,149 @@
+<?php 
+    $this->layout()->breadcrumb = "<a href='".$this->url(
+                                                    array('controller' => 'Personne',
+                                                          'action'     => 'ajouter'), "", true)."'>Ajouter des personnes</a> | "
+                                 ."<label>Liste des personnes</label>" ;
+    $this->layout()->titre = "Liste des clients et des employés" ;
+?>
+
+<label class="label">CLIENTS</label>
+<table cellpadding="0" cellspacing="0">
+    <thead>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Statut</th>
+        <th>Courriel</th>
+        <th>Code Postal</th>
+        <th>Ville</th>
+        <th>Date création</th>
+        <th>Action</th>
+    </thead>
+    <tbody>
+        <?php if (count($this->clients)>0): ?>
+            <?php foreach ($this->clients as $client): ?>
+                <tr>
+                    <td>
+                        <a class="loupe"
+                           title="Consulter la fiche du client"
+                           href="<?php echo $this->url(
+                                                    array("controller" => "Personne",
+                                                          "action"     => "consulter",
+                                                          "idPersonne" => $client->getId()), "", true) ?>">
+                        </a>
+                        <label class='gras'>
+                            <?php echo htmlentities($client->getNom()) ?>
+                        </label>
+                    </td>
+                    <td>
+                        <?php echo htmlentities($client->getPrenom()) ?>
+                    </td>
+                    <td>
+                        <label class='<?php echo (($client->getEstActif())? "ok" : "nok") ?>'></label>
+                    </td>
+                    <td>
+                        <?php echo htmlentities($client->getCourriel()) ?>
+                    </td>
+                    <td>
+                        <?php echo htmlentities($client->getCodePostal()) ?>
+                    </td>
+                    <td>
+                        <?php echo htmlentities($client->getVille()) ?>
+                    </td>
+                    <td>
+                        <?php echo $client->getDateCreation()->format('d/m/Y') ?>
+                    </td>
+                    <td>
+                        <a class='<?php echo ($client->getEstActif()? "off" : "on") ?>'
+                           title='<?php echo ($client->getEstActif()? "Désactiver le compte" : "Activer le compte") ?>' 
+                           onclick="return confirmAction('<?php echo ($client->getEstActif()? "désactiver" : "activer") ?>')"
+                           href='<?php echo $this->url(
+                                                    array("controller" => "Personne",
+                                                          "action"     => "changer",
+                                                          "idPersonne" => $client->getId()), "", true) ?>'>
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </tbody>
+</table>
+
+<br/>
+
+<label class="label">EMPLOYES</label>
+
+<table cellpadding="0" cellspacing="0">
+    <thead>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Statut</th>
+        <th>Courriel</th>
+        <th>Code Postal</th>
+        <th>Ville</th>
+        <th>Date création</th>
+        <th>Action</th>
+    </thead>
+    <tbody>
+        
+        <?php if (count($this->employes)>0): ?>
+            <?php foreach ($this->employes as $employe): ?>
+                <tr>
+                    <td>
+                        <a class="loupe"
+                           title="Consulter la fiche de l'employé"
+                           href="<?php echo $this->url(
+                                                    array("controller" => "Personne",
+                                                          "action"     => "consulter",
+                                                          "idPersonne" => $employe->getId()), "", true) ?>">
+                        </a>
+                        <label class='gras'>
+                            <?php echo htmlentities($employe->getNom()) ?>
+                        </label>
+                    </td>
+                    <td>
+                        <?php echo htmlentities($employe->getPrenom()) ?>
+                    </td>
+                    <td>
+                        <label class='<?php echo (($employe->getEstActif())? "ok" : "nok") ?>'></label>
+                    </td>
+                    <td>
+                        <?php echo htmlentities($employe->getCourriel()) ?>
+                    </td>
+                    <td>
+                        <?php echo htmlentities($employe->getCodePostal()) ?>
+                    </td>
+                    <td>
+                        <?php echo htmlentities($employe->getVille()) ?>
+                    </td>
+                    <td>
+                        <?php echo $employe->getDateCreation()->format('d/m/Y') ?>
+                    </td>
+                    <td>
+                        <a class='<?php echo ($employe->getEstActif()? "off" : "on") ?>'
+                           title='<?php echo ($employe->getEstActif()? "Désactiver le compte" : "Activer le compte") ?>'
+                           onclick="return confirmAction('<?php echo ($employe->getEstActif()? "désactiver" : "activer") ?>')"
+                           href='<?php echo $this->url(
+                                                    array("controller" => "Personne",
+                                                          "action"     => "changer",
+                                                          "idPersonne" => $employe->getId()), "", true) ?>'>
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </tbody>
+</table>
+    
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("table").dataTable({
+            "bJQueryUI": true,
+            "sPaginationType": "two_button"
+        });
+    }) ;
+    
+    function confirmAction(statut) {
+        var confirmed = confirm("Etes-vous sur de vouloir "+statut+" le compte de cette personne ?");
+        return confirmed;
+    }
+</script>

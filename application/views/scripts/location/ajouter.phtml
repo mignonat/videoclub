@@ -1,0 +1,263 @@
+<?php
+$this->layout()->breadcrumb = "<label>Saisir une location</label> | "
+                             ."<a href='" . $this->url(
+                                                    array('controller' => 'Location', 
+                                                          'action'     => 'index')) . "'>Locations en cours</a> | "
+                             ."<a href='" . $this->url(
+                                                    array('controller' => 'Location', 
+                                                          'action'     => 'historique')) . "'>Historique des locations</a>";
+$this->layout()->titre = "Saisir une nouvelle location";
+$form = $this->form;
+$form->setAction($this->url());
+?>
+
+<div class="wrapperMini">
+    
+    <div class="titre">
+        Rechercher une personne et un film à louer
+    </div>
+    
+    <form method="<?php echo $form->getMethod() ?>" action="<?php echo $form->getAction() ?>">
+        
+        <fieldset>
+            <legend><?php echo htmlentities($form->getElement("nomPersonne")->getLabel()) ?></legend>
+            <?php echo $form->getElement("nomPersonne")->removeDecorator("label") ?>
+            <br/>Sélectionnez une personne parmi les résultats :
+            <select id='selectPersonne' class='maxWidth'>
+                <option>-</option>
+            </select>
+            <?php echo $form->getElement("idPersonne") ?>
+        </fieldset>
+        
+        <div class='separator'></div>
+        
+        <fieldset class="margTop5">
+            <legend><?php echo htmlentities($form->getElement("nomFilm")->getLabel()) ?></legend>
+            <?php echo $form->getElement("nomFilm")->removeDecorator("label") ?>
+            <select id='selectFilm' class='maxWidth'>
+                <option>-</option>
+            </select>
+            <br/>
+            <div class='separator'></div>
+            Sélectionnez un média parmi ceux disponibles : 
+            <select id='selectMedia' class='maxWidth'>
+                <option>-</option>
+            </select>
+            <?php echo $form->getElement("idMedia") ?>
+        </fieldset>
+        
+        <?php
+        echo $form->getElement("submit");
+        echo $form->getElement("csrf");
+        ?>
+    </form>
+</div>
+<div id="message"></div>
+<script type="text/javascript">
+    var delay = 600;
+    var idFilmSelectionne;
+
+    function chargerPersonne(data) {
+        select = document.getElementById('selectPersonne');
+        select.innerHTML = "";
+        if (data.length === 0) {
+            $('#idPersonne').val("");
+            var opt = document.createElement('option');
+            opt.innerHTML = "Aucune personne pour cette recherche";
+            select.appendChild(opt);
+        } else {
+            for (var i = 0; i < data.length; i++) {
+                var opt = document.createElement('option');
+                var personne = data[i];
+                if (i === 0) {
+                    $('#idPersonne').val(personne.id);
+                }
+                opt.value = personne.id;
+                opt.innerHTML = personne.nom;
+                select.appendChild(opt);
+            }
+        }
+    }
+
+    function chargerFilm(data) {
+        select = document.getElementById('selectFilm');
+        select.innerHTML = "";
+        if (data.length === 0) {
+            idFilmSelectionne = '';
+            var opt = document.createElement('option');
+            opt.innerHTML = "Aucun film en base pour cette recherche";
+            select.appendChild(opt);
+            select = document.getElementById('selectMedia');
+            select.innerHTML = "";
+            var opt = document.createElement('option');
+            opt.innerHTML = "Aucun média";
+            select.appendChild(opt);
+            $('#idMedia').val("");
+        } else {
+            for (var i = 0; i < data.length; i++) {
+                var opt = document.createElement('option');
+                var film = data[i];
+                if (i === 0) {
+                    idFilmSelectionne = film.id;
+                }
+                opt.value = film.id;
+                opt.innerHTML = film.nom;
+                select.appendChild(opt);
+            }
+            rechercherMedia();
+        }
+    }
+
+    function chargerMedia(data) {
+        select = document.getElementById('selectMedia');
+        select.innerHTML = "";
+        if (data.length === 0) {
+            $('#idMedia').val("");
+            var opt = document.createElement('option');
+            opt.innerHTML = "Aucun média pour ce film";
+            select.appendChild(opt);
+        } else {
+            for (var i = 0; i < data.length; i++) {
+                var opt = document.createElement('option');
+                var media = data[i];
+                if (i === 0) {
+                    $('#idMedia').val(media.id);
+                }
+                opt.value = media.id;
+                opt.innerHTML = media.nom;
+                select.appendChild(opt);
+            }
+        }
+    }
+
+    function initEvent() {
+        var timer;
+        $('#nomPersonne').keyup(function() {
+            if (this.value.length > 1) {
+                if (timer) {
+                    clearTimeout(timer);
+                }
+                timer = setTimeout(function() {
+                    var nom = $("#nomPersonne").val();
+                    $.ajax({
+                        type: "POST",
+                        url: "<?php echo $this->url(array('controller' => 'Personne', 
+                                                          'action'     => 'rechercher')); ?>",
+                        data: "nom=" + nom,
+                        dataType: "json",
+                        success: function(msg) {
+                            if (msg.success === true) {
+                                chargerPersonne(msg.result);
+                            } else {
+                                message(msg.message, "Erreur !");
+                            }
+                        },
+                        error: function(msg) {
+                            message(msg.message, "Erreur de communication avec le serveur !");
+                        }
+                    });
+                }, delay);
+            }
+        });
+
+        $('#nomFilm').keyup(function() {
+            if (this.value.length > 1) {
+                if (timer) {
+                    clearTimeout(timer);
+                }
+                timer = setTimeout(function() {
+                    var nom = $("#nomFilm").val();
+                    $.ajax({
+                        type: "POST",
+                        url: "<?php echo $this->url(array('controller' => 'Film', 
+                                                          'action'     => 'rechercher')); ?>",
+                        data: "nom=" + nom,
+                        dataType: "json",
+                        success: function(msg) {
+                            if (msg.success === true) {
+                                chargerFilm(msg.result);
+                            } else {
+                                message(msg.message, "Erreur !");
+                            }
+                        },
+                        error: function(msg) {
+                            message(msg.message, "Erreur de communication avec le serveur !");
+                        }
+                    });
+                }, delay);
+            }
+        });
+    }
+
+    function rechercherMedia() {
+        $.ajax({
+            type: "POST",
+            url: "<?php echo $this->url(array('controller' => 'Media', 
+                                              'action'     => 'rechercher')); ?>",
+            data: "idFilm=" + idFilmSelectionne,
+            dataType: "json",
+            success: function(msg) {
+                if (msg.success === true) {
+                    chargerMedia(msg.result);
+                } else {
+                    message(msg.message, "Erreur !");
+                }
+            },
+            error: function(msg) {
+                message(msg.message, "Erreur de communication avec le serveur !");
+            }
+        });
+    }
+
+    function initMessagePopup() {
+        $('#message').dialog({
+            autoOpen: false,
+            modal: true,
+            minWidth: 450,
+            buttons: {
+                Ok: function() {
+                  $( this ).dialog( "close" );
+                }
+            }
+        });
+    }
+
+    function initSelect() {
+        $("#selectPersonne").on("change", function() {
+            $("#idPersonne").val($("#selectPersonne > option:selected").val()) ;
+        });
+        
+        $("#selectFilm").on("change", function() {
+            idFilmSelectionne = $("#selectFilm > option:selected").val();
+            rechercherMedia();
+        });
+        
+        $("#selectMedia").on("change", function() {
+            $("#idMedia").val($("#selectMedia > option:selected").val());
+        });
+    }
+
+    function message(texte, title) {
+        $('#message').html(texte);
+        $('#message').dialog("option", "title", (title != '') ? title : "Message");
+        $('#message').dialog('open');
+    }
+
+    $(document).ready(function() {
+        initEvent();
+        initMessagePopup();
+        initSelect();
+        
+        $('form').submit(function() {
+            if ($("#idPersonne").val() === '') {
+                message("Aucune personne sélectionnée !", "Attention");
+                return false;
+            }
+            if ($("#idMedia").val() === '') {
+                message("Aucun média sélectionné !", "Attention");
+                return false;
+            }
+            $("form")[0].submit();
+        });
+    });
+</script>

@@ -1,0 +1,34 @@
+<?php
+    $this->layout()->breadcrumb = "<label>Ajouter des personnes</label> | "
+                                 ."<a href='".$this->url(
+                                                     array('controller' => 'Personne', 
+                                                           'action'     => 'index'), "", true)."'>Liste des personnes</a>" ;
+    
+    $this->layout()->titre = "Ajouter des personnes dans l'application" ;
+    $form = $this->form ;
+    $form->setAction($this->url());
+?>
+
+<div class="wrapperMini">
+    
+    <div class="titre">
+        Renseignez les informations de la personne :
+    </div>
+    
+    <form method="<?php echo $form->getMethod() ?>" action="<?php echo $form->getAction()?>">
+        <?php
+        echo $form->getElement("nom") ;
+        echo $form->getElement("prenom") ;
+        echo $form->getElement("password1") ;
+        echo $form->getElement("password2") ;
+        echo $form->getElement("courriel") ;
+        echo $form->getElement("adresse1") ;
+        echo $form->getElement("adresse2") ;
+        echo $form->getElement("codePostal") ;
+        echo $form->getElement("ville") ;
+        echo $form->getElement("estEmploye") ;
+        echo $form->getElement("submit") ;
+        echo $form->getElement("csrf") ;
+        ?>
+   </form>
+</div>

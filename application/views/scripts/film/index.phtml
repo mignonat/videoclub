@@ -1,0 +1,101 @@
+<?php
+    $infosUser = new Zend_Session_Namespace('Zend_Auth');
+    $breadcrumb = "" ;
+    if (isset($infosUser->user)) {
+        if ($infosUser->role == "Employé") {
+            $breadcrumb = "<a href='".$this->url(
+                                            array('controller' => 'Film', 
+                                                  'action'     => 'ajouter'), "", true) . "'>Ajouter des films</a> | " ;
+        }
+    }
+    $breadcrumb .= "<label> Liste des films</label>";
+    
+$this->layout()->breadcrumb = $breadcrumb ;
+$this->layout()->titre = "Liste des films du vidéoclub";
+?>
+
+<table cellpadding="0" cellspacing="0">
+    <thead>
+        <th>Nom</th>
+        <th>Produit le</th>
+        <th>Ajouté le</th>
+        <th>Dispo</th>
+        <th>Realisateur</th>
+        <th>Acteur 1</th>
+        <th>Acteur 2</th>
+        <th>Acteur 3</th>
+        <?php if ($infosUser->role == 'Employé'): ?>
+        <th>Désactiver film</th>
+        <?php endif; ?>
+    </thead>
+    <tbody>
+        <?php if (count($this->films) > 0): ?>
+            <?php foreach ($this->films as $film): ?>
+                <tr>
+                    <td>
+                        <a class='loupe' 
+                           title='Consulter la fiche du film'
+                           href='<?php echo $this->url(
+                                                    array("controller" => "Film", 
+                                                          "action"     => "consulter", 
+                                                          "idFilm"     => $film->getId()), "", true) ?>'>
+                        </a>
+                        <label class='gras'><?php echo htmlentities($film->getNom())?></label>
+                    </td>
+                    <td>
+                        <?php echo $film->getDateFilm()->format('d/m/Y') ?>
+                    </td>
+                    <td>
+                        <?php echo $film->getDateCreation()->format('d/m/Y') ?>
+                    </td>
+                    <td>
+                        <label class='<?php echo (($film->estDisponible()) ? "ok" : "nok") ?>'></label>
+                    </td>
+                    <td>
+                        <?php echo htmlentities($film->getRealisateur()) ?>
+                    </td>
+                    <td>
+                        <?php echo htmlentities($film->getActeur1()) ?>
+                    </td>
+                    <td>
+                        <?php echo (($film->getActeur2() != null) ? htmlentities($film->getActeur2()) : "-") ?>
+                    </td>
+                    <td>
+                        <?php echo (($film->getActeur3() != null) ? htmlentities($film->getActeur3()) : "-") ?>
+                    </td>
+                    
+                    <?php if ($infosUser->role == 'Employé'): ?>
+                    <td>
+                        <?php if ($film->existeUnMediaActif()): ?>
+                            <a class='off' 
+                                title='Désactiver tous les médias de ce film'
+                                onclick='return confirmAction()'
+                                href='<?php echo $this->url(
+                                                        array("controller" => "Film",
+                                                              "action"     => "desactiver", 
+                                                              "idFilm"     => $film->getId()), "", true) ?>'>
+                            </a>
+                        <?php else: ?>
+                            -
+                        <?php endif; ?>
+                    </td>
+                    <?php endif; ?>
+                </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </tbody>
+</table>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("table").dataTable({
+            "bJQueryUI": true,
+            "sPaginationType": "two_button"
+        });
+        
+    });
+    function confirmAction() {
+        var confirmed = confirm("Etes-vous sur de vouloir désactiver tous les médias de ce film ?");
+        return confirmed;
+    }
+</script>

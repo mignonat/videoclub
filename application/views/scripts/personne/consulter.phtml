@@ -1,0 +1,155 @@
+<?php
+    $infosUser = new Zend_Session_Namespace('Zend_Auth');
+    $breadcrumb = "<label>Fiche informations personne</label>" ;
+    if (isset($infosUser->user)) {
+        if ($infosUser->role == "Employé") {
+            $breadcrumb =
+            "<a href='".$this->url(
+                                array('controller' => 'Personne',
+                                      'action'     => 'ajouter'), "", true)."'>Ajouter des personnes</a> | "
+            ."<a href='".$this->url(
+                                array('controller' => 'Personne', 
+                                      'action'     => 'index'), "", true) . "'>Liste des personnes</a> > "
+            .$breadcrumb." | "
+            ."<a href='".$this->url(
+                                array('controller' => 'Personne', 
+                                      'action'     => 'modifier', 
+                                      'idPersonne' => $this->personne->getId()), "", true) . "'>Modifer la personne</a>";
+        }
+    }
+    
+    $this->layout()->breadcrumb = $breadcrumb ;
+            
+    $this->layout()->titre = "Fiche informations de la personne" ;
+    $actif = $this->personne->getEstActif() ;
+?>
+
+<div class="wrapperMini center">
+    
+    <div class="titre">
+        <?php echo $this->personne; ?>
+    </div>
+    
+    <table cellpadding="0" cellspacing="0" class="perso margTop5 shadow2">
+        <tbody>
+            <tr>
+                <td>
+                    <label class='label'>Compte créé le</label>
+                </td>
+                <td>
+                    <?php echo $this->personne->getDateCreation()->format('d/m/Y'); ?>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class='label'>N° Adherent </label>
+                </td>
+                <td>
+                    <?php echo htmlentities($this->personne->getNumeroAdherent()); ?>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class='label'>Courriel </label>
+                </td>
+                <td>
+                    <?php echo htmlentities($this->personne->getCourriel()); ?>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class='label'>Adresse1 </label>
+                </td>
+                <td>
+                    <?php echo ($this->personne->getAdresse1()!=null)? htmlentities($this->personne->getAdresse1()) : "-"; ?>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class='label'>Adresse2 </label>
+                </td>
+                <td>
+                    <?php echo ($this->personne->getAdresse2()!=null)? htmlentities($this->personne->getAdresse2()) : "-"; ?>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class='label'>CP </label>
+                </td>
+                <td>
+                    <?php echo htmlentities($this->personne->getCodePostal()); ?>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class='label'>Ville </label>
+                </td>
+                <td>
+                    <?php echo htmlentities($this->personne->getVille()); ?>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class='label'>Type de personne </label>
+                </td>
+                <td>
+                    <?php echo (($this->personne->getEstEmploye())? "Employé" : "Client"); ?>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class='label'>Statut du compte </label>
+                </td>
+                <td>
+                    <label class='<?php echo (($actif)? "ok" : "nok") ?>'></label>
+                    <?php echo (($actif)? "Actif" : "Inactif") ; ?>
+                </td>
+            </tr>
+        </tbody>
+
+    </table>
+    <div class="separator"></div>
+    <?php if (count($this->locationsEnCours)>0): ?>
+        <label class="label">Location(s) en cours de validité :</label>
+        <table cellpadding="0" cellspacing="0" class="perso shadow2">
+            <thead>
+                <th>Film</th>
+                <th>Num Media</th>
+                <th>Type</th>
+                <th>Date Location</th>
+            </thead>
+            <tbody>
+                <?php foreach ($this->locationsEnCours as $location): ?>
+                    <tr>
+                        <td>
+                            <label class='label'>
+                                <?php echo htmlentities($location->getMedia()->getFilm()->getNom()) ?>
+                            </label>
+                        </td>
+                        <td>
+                            <?php echo htmlentities($location->getMedia()->getNumero()) ?>
+                        </td>
+                        <td>
+                            <label class="<?php echo ($location->getMedia()->getType()=="DVD")? "dvd" : "bluray" ?>"></label>
+                        </td>
+                        <td>
+                            <?php echo $location->getDateLocation()->format('d/m/Y'); ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php else: ?>
+        <label class="label">Aucune location en cours de validité.</label>
+    <?php endif ?>
+    <div class="separator"></div>
+    <a class="breadStyleA"
+        title="Consulter l'historique de ses locations"
+        href="<?php echo $this->url(
+                                  array("controller" => "Location", 
+                                        "action"     => "historique", 
+                                        "idPersonne"     => $this->personne->getId()), "", true) ?>">
+        Voir toutes les locations terminés
+     </a>
+</div>
+    

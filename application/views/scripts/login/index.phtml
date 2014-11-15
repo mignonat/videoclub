@@ -1,0 +1,26 @@
+<?php
+    $this->layout()->titre = "Se connecter à l'application" ;
+    $form = $this->form ;
+    $form->setAction($this->url());
+?>
+
+<style>
+    #session {
+        display: none;
+    }
+</style>
+
+<div class="wrapperMini">
+    <div class="titre">
+        Saisir vos identifiants
+    </div>
+    <form method="<?php echo $form->getMethod() ?>" action="<?php echo $form->getAction()?>">
+        <?php
+        echo $form->getElement("courriel") ;
+        echo $form->getElement("password") ;
+        echo $form->getElement("submit") ;
+        echo $form->getElement("csrf") ;
+        ?>
+        
+    </form>
+</div>

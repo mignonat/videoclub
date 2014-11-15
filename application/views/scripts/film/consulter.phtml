@@ -1,0 +1,172 @@
+<?php
+    $infosUser = new Zend_Session_Namespace('Zend_Auth');
+    $breadcrumb = "<a href='".$this->url(
+                                      array('controller' => 'Film', 
+                                            'action'     => 'index'), "", true) . "'>Liste des films</a> > "
+                 ."<label>Consulter le film</label>" ;
+    
+    if (isset($infosUser->role)) {
+        if ($infosUser->role == "Employé") {
+            $breadcrumb = "<a href='" . $this->url(
+                                                array('controller' => 'Film', 
+                                                      'action'     => 'ajouter'), "", true) . "'>Ajouter des films</a> | "
+                         .$breadcrumb 
+                         ." > <a href='" . $this->url(
+                                                array('controller' => 'Film', 
+                                                      'action'     => 'modifier', 
+                                                      "idFilm"     => $this->film->getId()) , "", true) . "'>Modifier le film</a>";
+        }
+    }
+    
+    $this->layout()->breadcrumb = $breadcrumb ;
+    $this->layout()->titre = "Fiche film";
+?>
+
+<div class="wrapper">
+
+    <div class="titre">
+        <?php echo htmlentities($this->film->getNom()) ?>
+    </div>
+
+    <div>
+        <label class='label'>Description : </label>
+        <div class='textarea'>
+            <?php echo htmlentities($this->film->getResume()); ?>
+        </div>
+        <div>
+            <label class='label'>Date de production : </label>
+            <?php echo $this->film->getDateFilm()->format('d/m/Y'); ?>
+        </div>
+        <div>
+            <label class='label'>Date d'ajout du film : </label>
+            <?php echo $this->film->getDateCreation()->format('d/m/Y'); ?>
+        </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <div class="wrapper">
+
+        <div class='inblock'>
+
+            <label class='label'>Casting</label>
+
+            <table cellpadding="0" cellspacing="0" class="perso">
+                <thead>
+                    <th>Rôle</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>
+                            <label class='gras'>Réalisateur</label>
+                        </td>
+                        <td>
+                            <?php echo htmlentities($this->film->getRealisateur()->getNom()) ?>
+                        </td>
+                        <td>
+                            <?php echo htmlentities($this->film->getRealisateur()->getPrenom()) ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class='gras'>Acteur principal</label>
+                        </td>
+                        <td>
+                            <?php echo htmlentities($this->film->getActeur1()->getNom()) ?>
+                        </td>
+                        <td>
+                            <?php echo htmlentities($this->film->getActeur1()->getPrenom()) ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class='gras'>Autre acteur</label>
+                        </td>
+                        <?php if ($this->film->getActeur2() != null): ?>
+                            <td><?php echo htmlentities($this->film->getActeur2()->getNom()) ?></td>
+                            <td><?php echo htmlentities($this->film->getActeur2()->getPrenom()) ?></td>
+                        <?php else: ?>
+                            <td>-</td>
+                            <td>-</td>
+                        <?php endif; ?>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class='gras'>Autre acteur</label>
+                        </td>
+                        <?php if ($this->film->getActeur3() != null): ?>
+                            <td><?php echo htmlentities($this->film->getActeur3()->getNom()) ?></td>
+                            <td><?php echo htmlentities($this->film->getActeur3()->getPrenom()) ?></td>
+                        <?php else: ?>
+                            <td>-</td>
+                            <td>-</td>
+                        <?php endif; ?>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class='inblock'>
+
+            <label class='label'>Liste de tous les médias pour ce film</label>
+
+            <table cellpadding="0" cellspacing="0" class="perso">
+                <thead>
+                    <th>Type</th>
+                    <th>N°</th>
+                    <th></th>
+                    <th>Statut</th>
+                </thead>
+
+                <tbody>
+                    <?php if (count($this->medias) > 0): ?>
+                        <?php if (isset($infosUser->user) && $infosUser->role == "Employé"): ?>
+                            <?php $possedeDroit = true ; ?>
+                        <?php else: ?>
+                            <?php $possedeDroit = false ; ?>
+                        <?php endif; ?>
+                    
+                        <?php foreach ($this->medias as $media): ?>
+                            <?php $location = $media->getLocationEnCours() ?>
+                            
+                            <tr>
+                                <td>
+                                    <label class='gras'><?php echo htmlentities($media->getType()) ?></label>
+                                </td>
+                                <td>
+                                    <?php echo htmlentities($media->getNumero()) ?>
+                                </td>
+                                <td>
+                                    <label class='<?php echo (($media->getStatut() == "disponible") ? "ok" : "nok") ?>'></label>
+                                </td>
+                                <td>
+                                    <?php echo ucfirst($media->getStatut()) ?>
+                                    <?php if ($possedeDroit && $location!=null): ?>
+                                        <a class='loupe'
+                                           title='Voir la fiche location'
+                                           href='<?php echo $this->url(
+                                                                    array("controller" => "Location",
+                                                                          "action"     => "consulter",
+                                                                          "idLocation" => $location->getId()), "", true) ?>'>
+                                        </a>
+                                        : <?php echo htmlentities($location->getPersonne()) ?>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                    
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan=4>Aucun média</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+

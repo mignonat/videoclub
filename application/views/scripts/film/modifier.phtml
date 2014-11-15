@@ -1,0 +1,350 @@
+<?php
+$form = $this->form;
+$this->layout()->breadcrumb = 
+        "<a href='" . $this->url(
+                                array('controller' => 'Film', 
+                                      'action'     => 'ajouter'), "", true) . "'>Ajouter des films</a> | "
+        . "<a href='" . $this->url(
+                                array('controller' => 'Film', 
+                                      'action'     => 'index')) . "'>Liste des films</a> > "
+        . "<a href='" . $this->url(
+                                array('controller' => 'Film', 
+                                      'action'     => 'consulter', "idFilm" => $form->getElement("id")->getValue())) . "'>Consulter le film</a> > "
+        . "<label>Modifier le film</label>";
+
+$this->layout()->titre = "Modifier le film";
+$form->setAction($this->url());
+
+$realisateur = htmlentities($this->film->getRealisateur()) ;
+$acteur1 = htmlentities($this->film->getActeur1()) ;
+$acteur2 = ($this->film->getActeur2() != null) ? htmlentities($this->film->getActeur2()) : "";
+$acteur3 = ($this->film->getActeur3() != null) ? htmlentities($this->film->getActeur3()) : "";
+
+?>
+
+<div class="wrapper">
+    
+    <div class="titre">
+        <?php echo htmlentities($this->film->getNom()) ?>
+    </div>
+    
+    <fieldset>
+        <legend>Modifier les informations du film :</legend>
+        
+        <form method="<?php echo $form->getMethod() ?>" action="<?php echo $form->getAction() ?>">
+            <?php echo $form->getElement("id") ?>
+            <?php echo $form->getElement("nom") ?>
+            <br/>
+            <?php echo $form->getElement("resume") ?>
+            <br/>
+            <?php echo $form->getElement("dateFilm") ?>
+            <br/>
+            
+            <div class="separator"></div>
+            
+            <label class="label">Casting</label>
+            
+            <table cellpadding="0" cellspacing="0" class="perso">
+                
+                <thead>
+                    <th>Rôle</th>
+                    <th>Personne</th>
+                    <th>Action</th>
+                </thead>
+                
+                <tbody>
+                    <tr>
+                        <td><label class='gras'>Réalisateur</label></td>
+                        <td>
+                            <label id="realisateur">
+                                <?php if ($form->getElement("realisateur_label")->getValue() != ''): ?>
+                                    <?php echo htmlentities($form->getElement("realisateur_label")->getValue()) ?>
+                                <?php else: ?>
+                                    <?php echo $realisateur ?>
+                                <?php endif; ?>
+                            </label>
+                        </td>
+                        <td><?php echo '<button type="button" onclick="selectActeursRealisateurs(\'realisateur\')">changer</button>' ?></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><label class='gras'>Acteur principal</label></td>
+                        <td>
+                            <label id="acteur1">
+                                <?php if ($form->getElement("acteur1_label")->getValue() != ''): ?>
+                                    <?php echo htmlentities($form->getElement("acteur1_label")->getValue()) ?>
+                                <?php else: ?>
+                                    <?php echo $acteur1 ?>
+                                <?php endif; ?>
+                                <?php echo $form->getElement("acteur1_id") ?>
+                            </label>
+                        </td>
+                        <td><?php echo '<button type="button" onclick="selectActeursRealisateurs(\'acteur1\')">changer</button>' ?></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><label class='gras'>Autre acteur</label></td>
+                        <td>
+                            <label id="acteur2">
+                                <?php if ($form->getElement("acteur2_label")->getValue() != ''): ?>
+                                    <?php echo htmlentities($form->getElement("acteur2_label")->getValue()) ?>
+                                <?php else: ?>
+                                    <?php echo $acteur2 ?>
+                                <?php endif; ?>
+                            </label>
+                        </td>
+                        <td><?php echo '<button type="button" onclick="selectActeursRealisateurs(\'acteur2\')">changer</button>' ?></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><label class='gras'>Autre acteur</label></td>
+                        <td>
+                            <label id="acteur3">
+                                <?php if ($form->getElement("acteur3_label")->getValue() != ''): ?>
+                                    <?php echo htmlentities($form->getElement("acteur3_label")->getValue()) ?>
+                                <?php else: ?>
+                                    <?php echo $acteur3 ?>
+                                <?php endif; ?>
+                            </label>
+                        </td>
+                        <td><?php echo '<button type="button" onclick="selectActeursRealisateurs(\'acteur3\')">changer</button>' ?></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <?php
+            echo $form->getElement("realisateur_id");
+            echo $form->getElement("acteur2_id");
+            echo $form->getElement("acteur3_id");
+            echo $form->getElement("realisateur_label");
+            echo $form->getElement("acteur1_label");
+            echo $form->getElement("acteur2_label");
+            echo $form->getElement("acteur3_label");
+            echo $form->getElement("csrf");
+            echo $form->getElement("submit");
+            ?>
+        </form>
+    </fieldset>
+
+    <fieldset>
+        <legend>Gérer les médias pour ce film :</legend>
+        
+        <label class="label">Liste des médias existant :</label>
+        
+        <table cellpadding="0" cellspacing="0" class="perso">
+            
+            <thead>
+                <th>Type</th>
+                <th>Num</th>
+                <th>Statut</th>
+                <th>Activer Désactiver</th>
+                <th>Location en cours</th>
+            </thead>
+            
+            <tbody id="tbody">
+                <?php if (count($this->medias) > 0): ?>
+                    <?php foreach ($this->medias as $media): ?>
+                        <?php $location = $media->getLocationEnCours() ; ?>
+                        <tr>
+                            <td>
+                                <label id='media_type_<?php echo $media->getId() ?>'
+                                       class='<?php echo (($media->getType() == "DVD") ? "dvd" : "bluray") ?>'>
+                                </label> 
+                            </td>
+                            <td>
+                                <label id='media_num<?php echo $media->getId() ?>'
+                                       class='gras'><?php echo htmlentities($media->getNumero())?></label>
+                            </td>
+                            <td>
+                                <div id='media_statut_<?php echo $media->getId() ?>'>
+                                    <label class='<?php echo (($media->getStatut() == 'disponible') ? "ok" : "nok")?>'></label>
+                                    <?php echo htmlentities(ucfirst($media->getStatut())) ?>
+                                </div>
+                            </td>
+                            <td>
+                                <a id="media_action_<?php echo $media->getId() ?>"
+                                   title="<?php echo (($media->getEstActif()) ? 'Désactiver' : 'Activer') ?> le média !"
+                                   class="<?php echo (($media->getEstActif()) ? 'off' : 'on') ?>"
+                                   href=# 
+                                   onclick="changerEtatMedia('<?php echo $media->getId() ?>')">
+                                </a>
+                            </td>
+                            <td>
+                                <?php if ($location!=null): ?>
+                                    <a class='loupe'
+                                        title='Consulter la fiche location'
+                                        href='<?php echo $this->url(
+                                                                array("controller" => "Location",
+                                                                      "action"     => "consulter",
+                                                                      "idLocation" => $location->getId()), "", true) ?>'>
+                                    </a>
+                                    <?php echo htmlentities($location->getPersonne()) ?>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan=5>Aucun média</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+        
+        <div class="separator"></div>
+        
+        <label class="label">Ajouter un média :</label>
+        
+        <div>
+            <label class="dvdBlock" onclick="ajouterMedia('DVD')"></label>
+            <label class="blurayBlock" onclick="ajouterMedia('BLURAY')"></label>
+        </div>
+    </fieldset>
+</div>
+
+<div id="popupActeurRealisateur">
+    Sélectionner <label id='popupLabel'></label> : 
+    <select id='selectActeursRealisateurs'>
+        <?php foreach ($this->listeActeursRealisateurs as $personne): ?>
+            <option value='<?php echo $personne->getId() ?>'>
+                <?php echo htmlentities($personne) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+</div>
+
+<div id="message"></div>
+
+<script type="text/javascript">
+    var acteurRealisateur = null;
+    var acteurRealisateurIDSelect = null;
+    var film = <?php echo $form->getElement("id")->getValue(); ?>;
+
+    function setActeursRealisateurs() {
+        //Recuperation de l'ID de l'acteurRealisateur selectionné
+        this.acteurRealisateurIDSelect = $("#selectActeursRealisateurs").val();//recupere l'id
+        //on insere l'id dans le champs caché du formulaire
+        $("#" + this.acteurRealisateur + "_id").val(this.acteurRealisateurIDSelect);
+        //pour recupérer le label si erreur de validation du formulaire
+        $("#" + this.acteurRealisateur + "_label").val($("#selectActeursRealisateurs > option:selected").text()); 
+        $("#" + acteurRealisateur).html($("#selectActeursRealisateurs > option:selected").text());
+    }
+
+    function selectActeursRealisateurs(acteurRealisateur) {
+        this.acteurRealisateur = acteurRealisateur;
+        openPopupSelect(acteurRealisateur);
+    }
+
+    function openPopupSelect(acteurRealisateur) {
+        $('#popupLabel').html(acteurRealisateur);
+        $('#popupActeurRealisateur').dialog("open");
+    }
+
+    function ajouterMedia(typeMedia) {
+        if (confirm("Etes-vous sur de vouloir ajouter un nouveau "+ typeMedia +" ?")) {
+            $.ajax({
+                type: "POST",
+                url: "<?php echo $this->url(array('controller' => 'Media', 'action' => 'ajouter')); ?>",
+                data: "idFilm=" + this.film + "&typeMedia=" + typeMedia,
+                dataType: "json",
+                success: function(msg) {
+                    if (msg.success === true) {
+                        var type = ((msg.type === "DVD") ? "dvd" : "bluray") ;
+                        var info = "Désactiver le média !" ;
+                        var action = "\'changerEtatMedia(' + msg.id + ')\'" ;
+
+                        var ligne = "<tr>"
+                                + "<td><label id='media_type_" + msg.id + "' class='" + type + "'></label></td>"
+                                + "<td><label id='media_num_" + msg.id + "'>" + msg.numero + "</label></td>"
+                                + "<td><div id='media_statut_" + msg.id + "'><label class='ok'></label>disponible</div></td>"
+                                + '<td><a id="media_action_' + msg.id + '" title="'+ info +'" class="off" href=# onclick='+ action +'></a></td>'
+                                + '<td>-</td>'
+                                + "</tr>";
+
+                        if ($("#tbody > tr > td:first").html() === "Aucun média") {
+                            $("#tbody").html("");
+                        }
+                        if (msg.type == "DVD") {
+                            $("#tbody").prepend(ligne);
+                        } else {
+                            $("#tbody").append(ligne);
+                        }
+                    } else {
+                        message(msg.message, "Erreur !");
+                    }
+                },
+                error: function(msg) {
+                    message(msg.message, "Erreur de communication avec le serveur !");
+                }
+            });
+        }
+        
+    }
+
+    function changerEtatMedia(idMedia) {
+        $.ajax({
+            type: "POST",
+            url: "<?php echo $this->url(array('controller' => 'Media', 'action' => 'modifier')); ?>",
+            data: "idMedia=" + idMedia,
+            dataType: "json",
+            success: function(msg) {
+                if (msg.success === true) {
+                    var info = ((msg.estActif) ? 'Désactiver' : 'Activer') + " le média !" ;
+                    $("#media_statut_" + idMedia).html("<label class='" + ((msg.statut === 'disponible') ? "ok" : "nok") + "'></label>" + msg.statut);
+                    $("#media_action_" + idMedia).removeClass().addClass((msg.estActif) ? "off" : "on").attr( "title", info) ;
+                } else {
+                    message(msg.message, "Erreur !");
+                }
+            },
+            error: function(msg) {
+                message(msg.message, "Erreur de communication avec le serveur !");
+            }
+        });
+    }
+
+    function initPopup() {
+        $("#popupActeurRealisateur").dialog({
+            resizable: true,
+            width: 470,
+            title: "Choisir une personne dans la liste",
+            autoOpen: false,
+            modal: true,
+            buttons: {
+                "OK": function() {
+                    setActeursRealisateurs();
+                    $(this).dialog("close");
+                },
+                "Annuler": function() {
+                    acteurRealisateur = null;
+                    acteurRealisateurIDSelect = null;
+                    $(this).dialog("close");
+                }
+            }
+        });
+        $('#message').dialog({
+            autoOpen: false,
+            modal: true,
+            minWidth: 450
+        });
+    }
+
+    function message(texte, title) {
+        $('#message').html(texte);
+        $('#message').dialog("option", "title", (title != '') ? title : "Message");
+        $('#message').dialog('open');
+    }
+
+    $(document).ready(function() {
+        initPopup();
+        $(".date").datepicker({ 
+            dateFormat: 'dd/mm/yy', 
+            changeMonth: true,
+            changeYear: true,
+            minDate: "-70Y", 
+            maxDate: "0Y"
+        }) ;
+    });
+</script>

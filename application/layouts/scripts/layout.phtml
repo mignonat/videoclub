@@ -1,0 +1,125 @@
+<?php
+    $tabMenu = array() ;
+    $isLogged = false ;
+    
+    $infosUser = new Zend_Session_Namespace('Zend_Auth');
+
+    $tabMenu['Accueil'] = array("controller" => "Index",
+                                "action"     => "index") ;
+    
+    $nomMenuFilm = 'Liste des films' ;
+    
+    if (isset($infosUser->role)) {
+        if ($infosUser->role == "Employé") {
+            $nomMenuLocation = 'Gérer les locations' ;
+            $nomMenuFilm = 'Gérer les films' ;
+            $tabMenu['Gérer les personnes'] = array("controller" => "Personne",
+                                                    "action"     => "index") ;
+        } else {
+            $nomMenuLocation = 'Mes locations' ;
+            $tabMenu['Mon compte'] = array("controller" => "Personne",
+                                                 "action"  => "consulter", 
+                                                 "idPersonne" => $infosUser->personneId) ;
+        }
+        $tabMenu[$nomMenuLocation] = array("controller" => "Location",
+                                       "action"     => "index") ;
+        $isLogged = true ;
+    }
+    $tabMenu[$nomMenuFilm] = array("controller" => "Film",
+                                  "action"     => "index") ;
+?>
+<html>
+    <head>
+        <title>VIDEOCLUB 2000</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="Description" content="Vidéoclub du village">
+        <?php 
+        echo $this
+                ->headLink()
+                ->appendStylesheet(Util::baseUrl().'/lib/jquery-ui-1.10.4.custom/css/custom-theme/jquery-ui-1.10.4.custom.css')
+                ->appendStylesheet(Util::baseUrl().'/lib/datatable/css/jquery.dataTables.css')
+                ->appendStylesheet(Util::baseUrl().'/css/main.css') ;
+        
+        echo $this->headScript()
+                ->prependFile(Util::baseUrl().'/lib/datatable/js/jquery.dataTables.js')
+                ->prependFile(Util::baseUrl().'/lib/jquery-ui-1.10.4.custom/js/jquery-ui-1.10.4.custom.js')
+                ->prependFile(Util::baseUrl().'/lib/jquery-ui-1.10.4.custom/js/jquery-1.10.2.js') ; 
+        ?>
+        <!--[if lte IE 8]>
+        <style>
+            .fieldset, #menu > a, .dvdBlock, .blurayBlock, .inblock  {
+                zoom: 1; /*Pour PEC du display inline-block. Offre le layout à un élément (*)*/
+                display: inline;
+            }
+        </style>
+        <![endif]-->
+    </head>
+    <body> 
+        <!-- BANDEAU -->
+        <div id='bandeau'>
+            <div id='logoBandeau'></div>
+            <div id="titreBandeau">
+                <?php echo $this->layout()->titre; ?>
+            </div>
+            <div id='infoBandeau'>
+                <?php if ($isLogged): ?>
+                    <label class='gras'>
+                        <?php echo $infosUser->user ?>
+                    </label>
+                    <br/>
+                    <?php echo $infosUser->role ?>
+                    <a id='bouton_session_off'
+                       title='Se déconnecter'
+                       href='<?php echo $this->url(
+                                                array('controller' => 'Login', 
+                                                      'action'     => 'deconnexion')) ?>'>
+                    </a>
+                <?php else: ?>
+                    <a id='bouton_session_on' 
+                       title='Se connecter'
+                       href='<?php echo $this->url(
+                                                array('controller' => 'Login', 
+                                                      'action'     => 'index')) ?>'>Connexion</a>
+                <?php endif; ?>
+            </div>
+        </div>
+        
+        <!-- MENU -->
+        <div id="menu">
+            <?php foreach ($tabMenu as $nom=>$lien): ?>
+                <a href='<?php echo $this->url($lien, "", true) ?>'>
+                   <?php echo $nom ?>
+                </a>
+            <?php endforeach; ?>
+        </div>
+
+        <!-- MESSAGE SUCCESS -->
+        <?php if (count($this->messagesSuccess) > 0): ?>
+            <div class="success">
+            <?php foreach ($this->messagesSuccess as $message): ?>
+                <?php echo $message ?>
+            <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+        
+        <!-- MESSAGE ERROR -->
+        <?php if (count($this->messagesError) > 0): ?>
+            <div class="error">
+            <?php foreach ($this->messagesError as $message): ?>
+                <?php echo $message ?>
+            <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+        
+        <!-- BREADCRUMB -->
+        <div id="breadcrumb">
+            <div class="separator"></div>
+            <?php echo $this->layout()->breadcrumb; ?>
+        </div>
+        
+        <!-- CONTENT -->
+        <div id="content">
+            <?php echo $this->layout()->content; ?>
+        </div>
+    </body>
+</html>

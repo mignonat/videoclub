@@ -1,0 +1,126 @@
+<?php
+    $this->layout()->breadcrumb = "<a href='" . $this->url(
+                                                    array('controller' => 'Location', 
+                                                          'action'     => 'ajouter')) . "'>Saisir une location</a> | "
+                             ."<a href='" . $this->url(
+                                                    array('controller' => 'Location', 
+                                                          'action'     => 'index')) . "'>Locations en cours</a> | "
+                             ."<a href='" . $this->url(
+                                                    array('controller' => 'Location', 
+                                                          'action'     => 'historique')) . "'>Historique des locations</a> | "
+                             ."<label>Consulter une location</label>";
+    $this->layout()->titre = "Fiche location" ;
+?>
+
+<div class="wrapper">
+    
+    <div class='inblock'>
+        <label class='label'>Loué le : </label>
+        <label><?php echo $this->location->getDateLocation()->format('d/m/Y'); ?></label>
+    </div>
+    
+    <div class='inblock'>
+        <label class='label'>Rendu le : </label>
+        <label>
+            <?php echo ($this->location->getDateRetour()!=null)? 
+                            $this->location->getDateRetour()->format('d/m/Y') 
+                            : "Location en cours"; ?>
+        </label>
+    </div>
+    
+    <a class='inblock'
+       title='Consulter la fiche du film'
+        href='<?php echo $this->url(
+                                array("controller" => "Film", 
+                                      "action" => "consulter", 
+                                      "idFilm" => $this->film->getId()), "", true) ?>'>
+        
+        <label class='titreDemiRond'>
+            Film : <?php echo htmlentities($this->film->getNom()) ?>
+        </label>
+        
+        <div class='separatorFin'></div>
+        
+        Réalisateur : 
+        <label class='gras'
+            <?php echo htmlentities($this->film->getRealisateur()) ?>
+        </label>
+        
+        <br/>
+        
+        Acteur principal : 
+        <label class='gras'>
+            <?php echo htmlentities($this->film->getActeur1()) ?>
+        </label>
+        
+        <br/>
+        Produit le  : 
+        <label class='gras'>
+            <?php echo $this->film->getDateFilm()->format("d/m/Y") ?>
+        </label>
+        
+        <br/>
+        
+        <div class='separatorFin'></div>
+        
+        <label class='<?php echo (($this->media->getType() == "DVD") ? "dvdBlock" : "blurayBlock") ?>'></label>
+        N° <label class='gras'><?php echo htmlentities($this->media->getNumero()) ?></label>
+    </a>
+    
+    <a class='inblock' 
+       title='Consulter la fiche de la personne'
+       href='<?php echo $this->url(
+                                array("controller" => "Personne", 
+                                      "action" => "consulter", 
+                                      "idPersonne" => $this->personne->getId()), "", true) ?>'>
+        
+        <label class='titreDemiRond'>
+            <?php echo htmlentities($this->personne->getIdentite()) ?>
+        </label>
+        
+        <div class='separatorFin'></div>
+        
+        Statut du compte : 
+        <label class='gras'>
+            <?php echo (($this->personne->getEstActif())? "Actif" : "Inactif") ?>
+        </label>
+        
+        <br/>
+        
+        Rôle : 
+        <label class='gras'>
+            <?php echo (($this->personne->getEstEmploye())? "Employé" : "Client") ?>
+        </label>
+        
+        <br/>
+        
+        N° Adhérent : 
+        <label class='gras'>
+            <?php echo htmlentities($this->personne->getNumeroAdherent()) ?>
+        </label>
+        
+        <br/>
+        
+        <div class='separatorFin'></div>
+        
+        Adresse : 
+        <label class='gras'>
+            <?php echo htmlentities($this->personne->getAdresse1()) ?>
+        </label>
+        
+        <br/>
+        Code postal : 
+        <label class='gras'>
+            <?php echo htmlentities($this->personne->getCodePostal()) ?>
+        </label>
+        
+        <br/>
+        
+        Ville : 
+        <label class='gras'>
+            <?php echo htmlentities($this->personne->getVille()) ?>
+        </label>
+    </a>
+</div>
+
+    
