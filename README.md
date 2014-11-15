@@ -1,4 +1,4 @@
-VIDEOCLUB
+Videoclub
 =========
 
 This project have been made for an evening class at the CNAM.
